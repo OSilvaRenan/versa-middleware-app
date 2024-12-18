@@ -7,37 +7,33 @@ export const config = {
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
+  let host = req.headers.get('host') || '';
 
-  // Extrai o subdomínio da URL a partir do cabeçalho 'host'
-  let host = req.headers.get('host')|| '';
-  let subdomain = '';
+  // Remove a porta, se existir
+  host = host.split(':')[0];
+
+  const allowedDomains = ["teste"];
   
-  // Remove port if it exists 
-  host = host.split(':')[0]
+  // Verifica se o hostname atual está na lista de domínios permitidos
+  const isMainDomain = allowedDomains.includes(host.split('.')[0]);
 
-  if (url && (url.href.includes('http://localhost:3000/pages')) || (url.href.includes('http://localhost:3000/page'))) {
-    const hostnameParts = host?.split('.') || [];
-
-    // Verifica se o subdomínio é válido e não é 'localhost'
-    if (hostnameParts.length == 2 && hostnameParts[0] !== 'localhost') {
-      // Armazena o subdomínio e remove-o da URL
-      subdomain = hostnameParts.shift()!;
-      url.hostname = hostnameParts.join('.');
-
-      // Define a nova URL sem o subdomínio
-      url.pathname = '/' + url.pathname.split('/').filter(Boolean).join('/');
-
-      // Redireciona para a URL correta e adiciona o cabeçalho com o subdomínio
-      const response = NextResponse.rewrite(url);
-      response.headers.set('extra-segment', subdomain);
-      return response;
-    }else {
-      url.pathname = '/pages/page2';
-      return NextResponse.rewrite(url);
-    }
+  if (!isMainDomain) {
+    // Reescreve para uma página específica para domínios principais
+    url.pathname = '/pages/page2';
+    return NextResponse.rewrite(url);
   }
 
-  return NextResponse.next();
+  const subdomain = isMainDomain ? host.split('.')[0] : null;
+
+  if (subdomain) {
+    // Reescreve a URL para uma rota dinâmica com base no subdomínio
+    url.pathname = '/' + url.pathname.split('/').filter(Boolean).join('/');
+    const response = NextResponse.rewrite(url);
+    response.headers.set('extra-segment', subdomain);
+    return response;
+  }
+
+  // Redirecionamento padrão para subdomínios ou domínios inválidos
+  url.pathname = '/pages/page2';
+  return NextResponse.rewrite(url);
 }
-
-
