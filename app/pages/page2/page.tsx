@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-
 export default function Page2() {
   const [text, setText] = useState("");
 
@@ -22,7 +21,10 @@ export default function Page2() {
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="grid bg-white p-6 rounded-lg shadow-lg w-full max-w-md gap-2">
+        <div className="text-lg font-bold w-full mb-10">
+          <img src="/logoPartnerHorizontalCinza.png" alt="Logo versa Partner" className="w-full h-full object-contain" />
+        </div>
         <h1 className="text-2xl font-bold mb-4 text-black">Informe o domínio</h1>
         <input
           type="text"
@@ -36,7 +38,13 @@ export default function Page2() {
           onClick={handleRedirect}
           className="bg-blue-500 text-white p-2 rounded-lg w-full"
         >
-          Adicionar
+          Salvar
+        </button>
+        <button
+          onClick={handleRedirect}
+          className="bg-gray-500 text-white p-2 rounded-lg w-full"
+        >
+          Voltar
         </button>
       </div>
     </div>
